@@ -259,16 +259,87 @@
             background-color: rgba(50, 100, 160, 0.8);
         }
         
+            /* === 生产等级区域 - 优化后的响应式布局 === */
         .production .resource-grid {
-            grid-template-columns: 1fr 1fr 1fr;
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 默认两列，更适合手机 */
+            gap: 10px;
         }
         
         .production .resource-item {
-            padding: 10px;
+            padding: 12px 10px;
+            min-height: 140px; /* 给按钮区域留出足够空间 */
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .production .resource-header {
+            margin-bottom: 8px;
+        }
+        
+        .production .resource-name {
+            font-size: 0.9rem;
+            line-height: 1.3;
+        }
+        
+        .production .resource-icon {
+            width: 26px;
+            height: 26px;
+            font-size: 0.85rem;
+        }
+        
+        .production .resource-controls {
+            margin: 10px 0;
         }
         
         .production .resource-value {
             font-size: 1.5rem;
+            min-width: 45px;
+        }
+        
+        .production .resource-input {
+            font-size: 1.4rem;
+            padding: 7px;
+        }
+        
+        .production .btn {
+            width: 34px;
+            height: 34px;
+            font-size: 1.1rem;
+        }
+        
+        .production .quick-adjust {
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            gap: 5px;
+        }
+        
+        .production .quick-btn {
+            padding: 7px 0;
+            font-size: 0.85rem;
+            flex: 1; /* 让按钮平均分配宽度 */
+            min-height: 32px;
+        }
+        
+        /* 超小屏幕（如较窄的手机）改为单列，获得最佳操作体验 */
+        @media (max-width: 400px) {
+            .production .resource-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .production .resource-item {
+                min-height: 130px;
+                padding: 10px;
+            }
+        }
+        
+        /* 大屏幕（平板或横屏手机）恢复三列，充分利用空间 */
+        @media (min-width: 700px) {
+            .production .resource-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 12px;
+            }
         }
         
         .actions {
