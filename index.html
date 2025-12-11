@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>重塑火星 - 个人面板记录器</title>
+    <meta name="theme-color" content="#ff9a00">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #0a1a2a;
+            color: #e8f4ff;
+            line-height: 1.6;
+            padding: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+            background-image: radial-gradient(circle at 20% 30%, rgba(28, 58, 84, 0.8) 0%, transparent 20%),
+                              radial-gradient(circle at 80% 70%, rgba(65, 28, 84, 0.6) 0%, transparent 20%);
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-bottom: 80px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 15px 10px;
+            background: linear-gradient(135deg, rgba(16, 42, 67, 0.9) 0%, rgba(28, 65, 91, 0.9) 100%);
+            border-radius: 16px;
+            border: 1px solid rgba(64, 156, 255, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 10, 30, 0.5);
+            margin-bottom: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff7b00, #ffaa00, #40c9ff, #00d9ff);
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            background: linear-gradient(90deg, #ff9a00, #ffcc00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            font-size: 0.9rem;
+            color: #a0d2ff;
+            margin-bottom: 10px;
+        }
+        
+        .player-info {
+            display: flex;
+            justify-content: space-between;
+            background-color: rgba(20, 45, 70, 0.7);
+            padding: 10px 15px;
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+        
+        .player-info div {
+            text-align: center;
+        }
+        
+        .player-info label {
+            display: block;
+            font-size: 0.8rem;
+            color: #88c1ff;
+            margin-bottom: 5px;
+        }
+        
+        .player-info input {
+            width: 100%;
+            background-color: rgba(10, 30, 50, 0.8);
+            border: 1px solid #2a5a8a;
+            color: #fff;
+            padding: 5px 8px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .panel {
+            background-color: rgba(16, 35, 55, 0.85);
+            border-radius: 16px;
+            padding: 15px;
+            border: 1px solid rgba(64, 156, 255, 0.2);
+            box-shadow: 0 4px 10px rgba(0, 10, 30, 0.4);
+        }
+        
+        .panel h2 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(255, 153, 0, 0.6);
+            color: #ffcc66;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .panel h2 i {
+            color: #ffaa33;
+        }
+        
+        .resource-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .resource-item {
+            display: flex;
+            flex-direction: column;
+            background-color: rgba(25, 55, 85, 0.7);
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid rgba(80, 140, 200, 0.3);
+        }
+        
+        .resource-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .resource-name {
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: #c2e0ff;
+        }
+        
+        .resource-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .mc { background-color: #f0b23d; color: #3a2600; }
+        .steel { background-color: #a0a0b0; color: #202030; }
+        .titanium { background-color: #70c0e0; color: #003040; }
+        .plant { background-color: #60c060; color: #003000; }
+        .energy { background-color: #ffcc00; color: #3a3000; }
+        .heat { background-color: #ff6644; color: #3a1000; }
+        
+        .resource-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .resource-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ffffff;
+            min-width: 50px;
+            text-align: center;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        
+        .resource-value:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .resource-input {
+            width: 100%;
+            background-color: rgba(10, 30, 50, 0.9);
+            border: 2px solid #40a0ff;
+            color: #fff;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover, .btn:active {
+            transform: scale(1.05);
+        }
+        
+        .btn-minus {
+            background-color: #ff5555;
+            color: white;
+        }
+        
+        .btn-plus {
+            background-color: #44cc44;
+            color: white;
+        }
+        
+        .quick-adjust {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            gap: 5px;
+        }
+        
+        .quick-btn {
+            flex: 1;
+            padding: 6px 0;
+            border-radius: 6px;
+            border: 1px solid rgba(100, 150, 200, 0.4);
+            background-color: rgba(30, 60, 100, 0.7);
+            color: #c2e0ff;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .quick-btn:hover {
+            background-color: rgba(50, 100, 160, 0.8);
+        }
+        
+        .production .resource-grid {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+        
+        .production .resource-item {
+            padding: 10px;
+        }
+        
+        .production .resource-value {
+            font-size: 1.5rem;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            flex: 1;
+            min-width: 140px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            border: none;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        .save-btn {
+            background: linear-gradient(to right, #2a7a3e, #3a9a4e);
+            color: white;
+        }
+        
+        .reset-btn {
+            background: linear-gradient(to right, #8a3a2a, #aa5a4a);
+            color: white;
+        }
+        
+        .next-btn {
+            background: linear-gradient(to right, #2a5a8a, #4a7aaa);
+            color: white;
+        }
+        
+        .action-btn:hover, .action-btn:active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .footer-note {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #88aacc;
+            margin-top: 15px;
+            padding: 10px;
+            border-top: 1px solid rgba(100, 150, 200, 0.2);
+        }
+        
+        @media (max-width: 380px) {
+            .resource-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .production .resource-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-globe-americas"></i> 重塑火星 - 个人面板</h1>
+            <div class="subtitle">点击资源数字可直接编辑，快速调整数值</div>
+            
+            <div class="player-info">
+                <div>
+                    <label>玩家名称</label>
+                    <input type="text" id="playerName" value="火星开拓者" maxlength="12">
+                </div>
+                <div>
+                    <label>TR分数</label>
+                    <input type="number" id="trScore" value="20" min="0" max="100">
+                </div>
+                <div>
+                    <label>世代</label>
+                    <input type="number" id="generation" value="1" min="1" max="20">
+                </div>
+            </div>
+        </header>
+        
+        <div class="panel">
+            <h2><i class="fas fa-coins"></i> 资源</h2>
+            <div class="resource-grid" id="resourcesContainer">
+                <!-- 资源项将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <div class="panel production">
+            <h2><i class="fas fa-industry"></i> 生产等级</h2>
+            <div class="resource-grid" id="productionContainer">
+                <!-- 生产等级项将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button class="action-btn save-btn" id="saveBtn">
+                <i class="fas fa-save"></i> 保存数据
+            </button>
+            <button class="action-btn reset-btn" id="resetBtn">
+                <i class="fas fa-redo"></i> 重置游戏
+            </button>
+            <button class="action-btn next-btn" id="nextGenBtn">
+                <i class="fas fa-forward"></i> 下一世代
+            </button>
+        </div>
+        
+        <div class="footer-note">
+            点击资源数字可直接输入新值，或使用快速调整按钮批量增减
+        </div>
+    </div>
+
+    <script>
+        // 游戏数据模型
+        const gameData = {
+            playerName: "火星开拓者",
+            trScore: 20,
+            generation: 1,
+            resources: {
+                mc: { name: "金钱", value: 42, icon: "MC", colorClass: "mc" },
+                steel: { name: "钢铁", value: 0, icon: "Fe", colorClass: "steel" },
+                titanium: { name: "钛", value: 0, icon: "Ti", colorClass: "titanium" },
+                plant: { name: "植物", value: 0, icon: "🌱", colorClass: "plant" },
+                energy: { name: "能源", value: 0, icon: "⚡", colorClass: "energy" },
+                heat: { name: "热能", value: 0, icon: "🔥", colorClass: "heat" }
+            },
+            production: {
+                mcProd: { name: "金钱生产", value: 1, icon: "MC", colorClass: "mc" },
+                steelProd: { name: "钢铁生产", value: 0, icon: "Fe", colorClass: "steel" },
+                titaniumProd: { name: "钛生产", value: 0, icon: "Ti", colorClass: "titanium" },
+                plantProd: { name: "植物生产", value: 0, icon: "🌱", colorClass: "plant" },
+                energyProd: { name: "能源生产", value: 0, icon: "⚡", colorClass: "energy" },
+                heatProd: { name: "热能生产", value: 0, icon: "🔥", colorClass: "heat" }
+            }
+        };
+
+        // DOM元素
+        let resourcesContainer, productionContainer;
+        let playerNameInput, trScoreInput, generationInput;
+        let editingResource = null; // 当前正在编辑的资源
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            resourcesContainer = document.getElementById('resourcesContainer');
+            productionContainer = document.getElementById('productionContainer');
+            playerNameInput = document.getElementById('playerName');
+            trScoreInput = document.getElementById('trScore');
+            generationInput = document.getElementById('generation');
+            
+            // 加载保存的数据
+            loadGameData();
+            
+            // 渲染资源面板
+            renderResources();
+            renderProduction();
+            
+            // 设置事件监听器
+            document.getElementById('saveBtn').addEventListener('click', saveGameData);
+            document.getElementById('resetBtn').addEventListener('click', resetGameData);
+            document.getElementById('nextGenBtn').addEventListener('click', nextGeneration);
+            
+            // 为输入框添加事件监听器
+            playerNameInput.addEventListener('change', updatePlayerName);
+            trScoreInput.addEventListener('change', updateTrScore);
+            generationInput.addEventListener('change', updateGeneration);
+            
+            // 自动保存功能
+            setInterval(saveGameData, 30000); // 每30秒自动保存
+            
+            // 点击其他地方时取消编辑
+            document.addEventListener('click', function(e) {
+                if (editingResource && !e.target.closest('.resource-item')) {
+                    cancelEdit();
+                }
+            });
+            
+            // 注册Service Worker以支持PWA安装和离线功能
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('service-worker.js')
+                        .then(reg => console.log('Service Worker 注册成功'))
+                        .catch(err => console.log('Service Worker 注册失败: ', err));
+                });
+            }
+        });
+
+        // 渲染资源
+        function renderResources() {
+            resourcesContainer.innerHTML = '';
+            
+            for (const [key, resource] of Object.entries(gameData.resources)) {
+                const resourceElement = document.createElement('div');
+                resourceElement.className = 'resource-item';
+                
+                resourceElement.innerHTML = `
+                    <div class="resource-header">
+                        <span class="resource-name">${resource.name}</span>
+                        <div class="resource-icon ${resource.colorClass}">${resource.icon}</div>
+                    </div>
+                    <div class="resource-controls">
+                        <button class="btn btn-minus" data-resource="${key}" data-action="decrease">-</button>
+                        <div class="resource-value" id="${key}Value" data-resource="${key}">${resource.value}</div>
+                        <input type="number" class="resource-input" id="${key}Input" data-resource="${key}" value="${resource.value}" min="0" max="999">
+                        <button class="btn btn-plus" data-resource="${key}" data-action="increase">+</button>
+                    </div>
+                    <div class="quick-adjust">
+                        <button class="quick-btn" data-resource="${key}" data-amount="-5">-5</button>
+                        <button class="quick-btn" data-resource="${key}" data-amount="-10">-10</button>
+                        <button class="quick-btn" data-resource="${key}" data-amount="+5">+5</button>
+                        <button class="quick-btn" data-resource="${key}" data-amount="+10">+10</button>
+                    </div>
+                `;
+                
+                resourcesContainer.appendChild(resourceElement);
+            }
+            
+            // 为资源按钮添加事件监听器
+            document.querySelectorAll('.resource-controls .btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const resourceKey = this.getAttribute('data-resource');
+                    const action = this.getAttribute('data-action');
+                    updateResource(resourceKey, action);
+                });
+            });
+            
+            // 为快速调整按钮添加事件监听器
+            document.querySelectorAll('.quick-adjust .quick-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const resourceKey = this.getAttribute('data-resource');
+                    const amount = parseInt(this.getAttribute('data-amount'));
+                    quickAdjustResource(resourceKey, amount);
+                });
+            });
+            
+            // 为资源值添加点击事件（切换到输入模式）
+            document.querySelectorAll('.resource-value').forEach(valueElement => {
+                valueElement.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const resourceKey = this.getAttribute('data-resource');
+                    startEditResource(resourceKey);
+                });
+            });
+            
+            // 为输入框添加事件监听器
+            document.querySelectorAll('.resource-input').forEach(input => {
+                input.addEventListener('blur', function() {
+                    const resourceKey = this.getAttribute('data-resource');
+                    finishEditResource(resourceKey);
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        const resourceKey = this.getAttribute('data-resource');
+                        finishEditResource(resourceKey);
+                    } else if (e.key === 'Escape') {
+                        cancelEdit();
+                    }
+                });
+            });
+        }
+
+        // 渲染生产等级
+        function renderProduction() {
+            productionContainer.innerHTML = '';
+            
+            for (const [key, prod] of Object.entries(gameData.production)) {
+                const prodElement = document.createElement('div');
+                prodElement.className = 'resource-item';
+                
+                prodElement.innerHTML = `
+                    <div class="resource-header">
+                        <span class="resource-name">${prod.name}</span>
+                        <div class="resource-icon ${prod.colorClass}">${prod.icon}</div>
+                    </div>
+                    <div class="resource-controls">
+                        <button class="btn btn-minus" data-production="${key}" data-action="decrease">-</button>
+                        <div class="resource-value" id="${key}Value" data-production="${key}">${prod.value}</div>
+                        <input type="number" class="resource-input" id="${key}Input" data-production="${key}" value="${prod.value}" min="0" max="50">
+                        <button class="btn btn-plus" data-production="${key}" data-action="increase">+</button>
+                    </div>
+                    <div class="quick-adjust">
+                        <button class="quick-btn" data-production="${key}" data-amount="-3">-3</button>
+                        <button class="quick-btn" data-production="${key}" data-amount="-1">-1</button>
+                        <button class="quick-btn" data-production="${key}" data-amount="+1">+1</button>
+                        <button class="quick-btn" data-production="${key}" data-amount="+3">+3</button>
+                    </div>
+                `;
+                
+                productionContainer.appendChild(prodElement);
+            }
+            
+            // 为生产按钮添加事件监听器
+            document.querySelectorAll('.production .resource-controls .btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const prodKey = this.getAttribute('data-production');
+                    const action = this.getAttribute('data-action');
+                    updateProduction(prodKey, action);
+                });
+            });
+            
+            // 为快速调整按钮添加事件监听器
+            document.querySelectorAll('.production .quick-adjust .quick-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const prodKey = this.getAttribute('data-production');
+                    const amount = parseInt(this.getAttribute('data-amount'));
+                    quickAdjustProduction(prodKey, amount);
+                });
+            });
+            
+            // 为生产值添加点击事件（切换到输入模式）
+            document.querySelectorAll('.production .resource-value').forEach(valueElement => {
+                valueElement.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const prodKey = this.getAttribute('data-production');
+                    startEditProduction(prodKey);
+                });
+            });
+            
+            // 为输入框添加事件监听器
+            document.querySelectorAll('.production .resource-input').forEach(input => {
+                input.addEventListener('blur', function() {
+                    const prodKey = this.getAttribute('data-production');
+                    finishEditProduction(prodKey);
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        const prodKey = this.getAttribute('data-production');
+                        finishEditProduction(prodKey);
+                    } else if (e.key === 'Escape') {
+                        cancelEdit();
+                    }
+                });
+            });
+        }
+
+        // 开始编辑资源
+        function startEditResource(resourceKey) {
+            if (editingResource) cancelEdit();
+            
+            const valueElement = document.getElementById(`${resourceKey}Value`);
+            const inputElement = document.getElementById(`${resourceKey}Input`);
+            
+            if (valueElement && inputElement) {
+                valueElement.style.display = 'none';
+                inputElement.style.display = 'block';
+                inputElement.focus();
+                inputElement.select();
+                editingResource = { type: 'resource', key: resourceKey };
+            }
+        }
+
+        // 完成编辑资源
+        function finishEditResource(resourceKey) {
+            const inputElement = document.getElementById(`${resourceKey}Input`);
+            const valueElement = document.getElementById(`${resourceKey}Value`);
+            
+            if (inputElement && valueElement) {
+                let newValue = parseInt(inputElement.value);
+                if (isNaN(newValue) || newValue < 0) newValue = 0;
+                
+                gameData.resources[resourceKey].value = newValue;
+                valueElement.textContent = newValue;
+                
+                inputElement.style.display = 'none';
+                valueElement.style.display = 'block';
+                editingResource = null;
+                saveGameData();
+            }
+        }
+
+        // 开始编辑生产等级
+        function startEditProduction(prodKey) {
+            if (editingResource) cancelEdit();
+            
+            const valueElement = document.getElementById(`${prodKey}Value`);
+            const inputElement = document.getElementById(`${prodKey}Input`);
+            
+            if (valueElement && inputElement) {
+                valueElement.style.display = 'none';
+                inputElement.style.display = 'block';
+                inputElement.focus();
+                inputElement.select();
+                editingResource = { type: 'production', key: prodKey };
+            }
+        }
+
+        // 完成编辑生产等级
+        function finishEditProduction(prodKey) {
+            const inputElement = document.getElementById(`${prodKey}Input`);
+            const valueElement = document.getElementById(`${prodKey}Value`);
+            
+            if (inputElement && valueElement) {
+                let newValue = parseInt(inputElement.value);
+                if (isNaN(newValue) || newValue < 0) newValue = 0;
+                
+                gameData.production[prodKey].value = newValue;
+                valueElement.textContent = newValue;
+                
+                inputElement.style.display = 'none';
+                valueElement.style.display = 'block';
+                editingResource = null;
+                saveGameData();
+            }
+        }
+
+        // 取消编辑
+        function cancelEdit() {
+            if (!editingResource) return;
+            
+            if (editingResource.type === 'resource') {
+                const resourceKey = editingResource.key;
+                const inputElement = document.getElementById(`${resourceKey}Input`);
+                const valueElement = document.getElementById(`${resourceKey}Value`);
+                
+                if (inputElement && valueElement) {
+                    inputElement.value = gameData.resources[resourceKey].value;
+                    inputElement.style.display = 'none';
+                    valueElement.style.display = 'block';
+                }
+            } else if (editingResource.type === 'production') {
+                const prodKey = editingResource.key;
+                const inputElement = document.getElementById(`${prodKey}Input`);
+                const valueElement = document.getElementById(`${prodKey}Value`);
+                
+                if (inputElement && valueElement) {
+                    inputElement.value = gameData.production[prodKey].value;
+                    inputElement.style.display = 'none';
+                    valueElement.style.display = 'block';
+                }
+            }
+            
+            editingResource = null;
+        }
+
+        // 快速调整资源
+        function quickAdjustResource(resourceKey, amount) {
+            const resource = gameData.resources[resourceKey];
+            if (!resource) return;
+            
+            let newValue = resource.value + amount;
+            if (newValue < 0) newValue = 0;
+            
+            resource.value = newValue;
+            document.getElementById(`${resourceKey}Value`).textContent = newValue;
+            document.getElementById(`${resourceKey}Input`).value = newValue;
+            saveGameData();
+        }
+
+        // 快速调整生产等级
+        function quickAdjustProduction(prodKey, amount) {
+            const prod = gameData.production[prodKey];
+            if (!prod) return;
+            
+            let newValue = prod.value + amount;
+            if (newValue < 0) newValue = 0;
+            
+            prod.value = newValue;
+            document.getElementById(`${prodKey}Value`).textContent = newValue;
+            document.getElementById(`${prodKey}Input`).value = newValue;
+            saveGameData();
+        }
+
+        // 更新资源值
+        function updateResource(resourceKey, action) {
+            const resource = gameData.resources[resourceKey];
+            if (!resource) return;
+            
+            if (action === 'increase') {
+                resource.value++;
+            } else if (action === 'decrease' && resource.value > 0) {
+                resource.value--;
+            }
+            
+            document.getElementById(`${resourceKey}Value`).textContent = resource.value;
+            document.getElementById(`${resourceKey}Input`).value = resource.value;
+            saveGameData();
+        }
+
+        // 更新生产等级
+        function updateProduction(prodKey, action) {
+            const prod = gameData.production[prodKey];
+            if (!prod) return;
+            
+            if (action === 'increase') {
+                prod.value++;
+            } else if (action === 'decrease' && prod.value > 0) {
+                prod.value--;
+            }
+            
+            document.getElementById(`${prodKey}Value`).textContent = prod.value;
+            document.getElementById(`${prodKey}Input`).value = prod.value;
+            saveGameData();
+        }
+
+        // 更新玩家名称
+        function updatePlayerName() {
+            gameData.playerName = playerNameInput.value;
+            saveGameData();
+        }
+
+        // 更新TR分数
+        function updateTrScore() {
+            gameData.trScore = parseInt(trScoreInput.value) || 0;
+            saveGameData();
+        }
+
+        // 更新世代
+        function updateGeneration() {
+            gameData.generation = parseInt(generationInput.value) || 1;
+            saveGameData();
+        }
+
+        // 下一世代
+        function nextGeneration() {
+            // 增加世代
+            gameData.generation++;
+            generationInput.value = gameData.generation;
+            
+            // 根据生产等级增加资源
+            // 金钱生产
+            gameData.resources.mc.value += gameData.production.mcProd.value;
+            
+            // 钢铁生产
+            gameData.resources.steel.value += gameData.production.steelProd.value;
+            
+            // 钛生产
+            gameData.resources.titanium.value += gameData.production.titaniumProd.value;
+            
+            // 植物生产
+            gameData.resources.plant.value += gameData.production.plantProd.value;
+            
+            // 能源转换为热能
+            gameData.resources.heat.value += gameData.resources.energy.value;
+            gameData.resources.energy.value = gameData.production.energyProd.value;
+            
+            // 热能生产
+            gameData.resources.heat.value += gameData.production.heatProd.value;
+            
+            // 更新显示
+            renderResources();
+            saveGameData();
+            
+            // 显示提示
+            showMessage(`第 ${gameData.generation-1} 世代结束，第 ${gameData.generation} 世代开始！`);
+        }
+
+        // 保存游戏数据到本地存储
+        function saveGameData() {
+            localStorage.setItem('marsTerraformerData', JSON.stringify(gameData));
+            // 不显示消息，避免干扰
+        }
+
+        // 从本地存储加载游戏数据
+        function loadGameData() {
+            const savedData = localStorage.getItem('marsTerraformerData');
+            if (savedData) {
+                const parsedData = JSON.parse(savedData);
+                
+                // 更新游戏数据对象
+                Object.assign(gameData, parsedData);
+                
+                // 更新输入框
+                playerNameInput.value = gameData.playerName;
+                trScoreInput.value = gameData.trScore;
+                generationInput.value = gameData.generation;
+            }
+        }
+
+        // 重置游戏数据
+        function resetGameData() {
+            if (confirm('确定要重置所有游戏数据吗？此操作不可撤销。')) {
+                // 重置为初始值
+                gameData.playerName = "火星开拓者";
+                gameData.trScore = 20;
+                gameData.generation = 1;
+                
+                gameData.resources.mc.value = 42;
+                gameData.resources.steel.value = 0;
+                gameData.resources.titanium.value = 0;
+                gameData.resources.plant.value = 0;
+                gameData.resources.energy.value = 0;
+                gameData.resources.heat.value = 0;
+                
+                gameData.production.mcProd.value = 1;
+                gameData.production.steelProd.value = 0;
+                gameData.production.titaniumProd.value = 0;
+                gameData.production.plantProd.value = 0;
+                gameData.production.energyProd.value = 0;
+                gameData.production.heatProd.value = 0;
+                
+                // 更新UI
+                playerNameInput.value = gameData.playerName;
+                trScoreInput.value = gameData.trScore;
+                generationInput.value = gameData.generation;
+                
+                renderResources();
+                renderProduction();
+                saveGameData();
+                
+                showMessage('游戏数据已重置！');
+            }
+        }
+
+        // 显示临时消息
+        function showMessage(message, duration = 2000) {
+            // 移除已存在的消息
+            const existingMessage = document.querySelector('.message-toast');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            
+            // 创建新消息
+            const messageToast = document.createElement('div');
+            messageToast.className = 'message-toast';
+            messageToast.textContent = message;
+            
+            // 样式
+            messageToast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: rgba(30, 60, 90, 0.95);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                z-index: 1000;
+                font-weight: bold;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+                border: 1px solid rgba(100, 180, 255, 0.5);
+                animation: fadeInOut ${duration}ms ease-in-out;
+            `;
+            
+            // 添加动画
+            const styleSheet = document.createElement('style');
+            styleSheet.textContent = `
+                @keyframes fadeInOut {
+                    0% { opacity: 0; top: 10px; }
+                    15% { opacity: 1; top: 20px; }
+                    85% { opacity: 1; top: 20px; }
+                    100% { opacity: 0; top: 10px; }
+                }
+            `;
+            document.head.appendChild(styleSheet);
+            
+            document.body.appendChild(messageToast);
+            
+            // 自动移除
+            setTimeout(() => {
+                if (messageToast.parentNode) {
+                    messageToast.remove();
+                }
+                if (styleSheet.parentNode) {
+                    styleSheet.remove();
+                }
+            }, duration);
+        }
+    </script>
+</body>
+</html>
