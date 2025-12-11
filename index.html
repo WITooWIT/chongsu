@@ -2,10 +2,11 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <!-- PWA核心配置 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>重塑火星 - 个人面板记录器</title>
     <meta name="theme-color" content="#ff9a00">
     <link rel="manifest" href="manifest.json">
+    <title>重塑火星 - 个人面板记录器</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -259,7 +260,7 @@
             background-color: rgba(50, 100, 160, 0.8);
         }
         
-            /* === 生产等级区域 - 优化后的响应式布局 === */
+        /* === 生产等级区域 - 优化后的响应式布局 === */
         .production .resource-grid {
             display: grid;
             grid-template-columns: 1fr 1fr; /* 默认两列，更适合手机 */
@@ -342,6 +343,22 @@
             }
         }
         
+        /* 通用资源网格在超小屏幕的优化 */
+        @media (max-width: 380px) {
+            .resource-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .resource-item {
+                padding: 10px;
+            }
+            
+            .quick-adjust .quick-btn {
+                padding: 7px 0;
+                font-size: 0.85rem;
+            }
+        }
+        
         .actions {
             display: flex;
             gap: 10px;
@@ -392,16 +409,6 @@
             margin-top: 15px;
             padding: 10px;
             border-top: 1px solid rgba(100, 150, 200, 0.2);
-        }
-        
-        @media (max-width: 380px) {
-            .resource-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .production .resource-grid {
-                grid-template-columns: 1fr 1fr;
-            }
         }
     </style>
 </head>
@@ -531,6 +538,14 @@
                         .catch(err => console.log('Service Worker 注册失败: ', err));
                 });
             }
+
+            // 监听PWA安装提示
+            let deferredPrompt;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                console.log('PWA安装提示已就绪');
+            });
         });
 
         // 渲染资源
@@ -864,39 +879,38 @@
             saveGameData();
         }
 
-       
-      // 下一世代
-function nextGeneration() {
-    // 增加世代
-    gameData.generation++;
-    generationInput.value = gameData.generation;
-    
-    // === 核心修正：世代收入 = 金钱生产等级 + TR分数 ===
-    gameData.resources.mc.value += gameData.production.mcProd.value + gameData.trScore;
-    
-    // 钢铁生产
-    gameData.resources.steel.value += gameData.production.steelProd.value;
-    
-    // 钛生产
-    gameData.resources.titanium.value += gameData.production.titaniumProd.value;
-    
-    // 植物生产
-    gameData.resources.plant.value += gameData.production.plantProd.value;
-    
-    // 能源转换为热能
-    gameData.resources.heat.value += gameData.resources.energy.value;
-    gameData.resources.energy.value = gameData.production.energyProd.value;
-    
-    // 热能生产
-    gameData.resources.heat.value += gameData.production.heatProd.value;
-    
-    // 更新显示
-    renderResources();
-    saveGameData();
-    
-    // 显示提示
-    showMessage(`第 ${gameData.generation-1} 世代结束，第 ${gameData.generation} 世代开始！`);
-}
+        // 下一世代
+        function nextGeneration() {
+            // 增加世代
+            gameData.generation++;
+            generationInput.value = gameData.generation;
+            
+            // === 核心修正：世代收入 = 金钱生产等级 + TR分数 ===
+            gameData.resources.mc.value += gameData.production.mcProd.value + gameData.trScore;
+            
+            // 钢铁生产
+            gameData.resources.steel.value += gameData.production.steelProd.value;
+            
+            // 钛生产
+            gameData.resources.titanium.value += gameData.production.titaniumProd.value;
+            
+            // 植物生产
+            gameData.resources.plant.value += gameData.production.plantProd.value;
+            
+            // 能源转换为热能
+            gameData.resources.heat.value += gameData.resources.energy.value;
+            gameData.resources.energy.value = gameData.production.energyProd.value;
+            
+            // 热能生产
+            gameData.resources.heat.value += gameData.production.heatProd.value;
+            
+            // 更新显示
+            renderResources();
+            saveGameData();
+            
+            // 显示提示
+            showMessage(`第 ${gameData.generation-1} 世代结束，第 ${gameData.generation} 世代开始！`);
+        }
 
         // 保存游戏数据到本地存储
         function saveGameData() {
