@@ -258,7 +258,7 @@
         .quick-btn:hover {
             background-color: rgba(50, 100, 160, 0.8);
         }
-        /* 修复布局缓存 */
+        
             /* === 生产等级区域 - 优化后的响应式布局 === */
         .production .resource-grid {
             display: grid;
@@ -864,39 +864,39 @@
             saveGameData();
         }
 
-        // 下一世代
-        function nextGeneration() {
-            // 增加世代
-            gameData.generation++;
-            generationInput.value = gameData.generation;
-            
-            // 根据生产等级增加资源
-            // 金钱生产
-            gameData.resources.mc.value += gameData.production.mcProd.value;
-            
-            // 钢铁生产
-            gameData.resources.steel.value += gameData.production.steelProd.value;
-            
-            // 钛生产
-            gameData.resources.titanium.value += gameData.production.titaniumProd.value;
-            
-            // 植物生产
-            gameData.resources.plant.value += gameData.production.plantProd.value;
-            
-            // 能源转换为热能
-            gameData.resources.heat.value += gameData.resources.energy.value;
-            gameData.resources.energy.value = gameData.production.energyProd.value;
-            
-            // 热能生产
-            gameData.resources.heat.value += gameData.production.heatProd.value;
-            
-            // 更新显示
-            renderResources();
-            saveGameData();
-            
-            // 显示提示
-            showMessage(`第 ${gameData.generation-1} 世代结束，第 ${gameData.generation} 世代开始！`);
-        }
+       
+      // 下一世代
+function nextGeneration() {
+    // 增加世代
+    gameData.generation++;
+    generationInput.value = gameData.generation;
+    
+    // === 核心修正：世代收入 = 金钱生产等级 + TR分数 ===
+    gameData.resources.mc.value += gameData.production.mcProd.value + gameData.trScore;
+    
+    // 钢铁生产
+    gameData.resources.steel.value += gameData.production.steelProd.value;
+    
+    // 钛生产
+    gameData.resources.titanium.value += gameData.production.titaniumProd.value;
+    
+    // 植物生产
+    gameData.resources.plant.value += gameData.production.plantProd.value;
+    
+    // 能源转换为热能
+    gameData.resources.heat.value += gameData.resources.energy.value;
+    gameData.resources.energy.value = gameData.production.energyProd.value;
+    
+    // 热能生产
+    gameData.resources.heat.value += gameData.production.heatProd.value;
+    
+    // 更新显示
+    renderResources();
+    saveGameData();
+    
+    // 显示提示
+    showMessage(`第 ${gameData.generation-1} 世代结束，第 ${gameData.generation} 世代开始！`);
+}
 
         // 保存游戏数据到本地存储
         function saveGameData() {
