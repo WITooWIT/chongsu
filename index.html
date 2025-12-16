@@ -641,7 +641,7 @@
                     <div class="resource-controls">
                         <button class="btn btn-minus" data-production="${key}" data-action="decrease">-</button>
                         <div class="resource-value" id="${key}Value" data-production="${key}">${prod.value}</div>
-                        <input type="number" class="resource-input" id="${key}Input" data-production="${key}" value="${prod.value}" min="0" max="50">
+                        <input type="number" class="resource-input" id="${key}Input" data-production="${key}" value="${prod.value}" min="-20" max="50">
                         <button class="btn btn-plus" data-production="${key}" data-action="increase">+</button>
                     </div>
                     <div class="quick-adjust">
@@ -821,7 +821,7 @@
             if (!prod) return;
             
             let newValue = prod.value + amount;
-            if (newValue < 0) newValue = 0;
+            
             
             prod.value = newValue;
             document.getElementById(`${prodKey}Value`).textContent = newValue;
@@ -852,7 +852,7 @@
             
             if (action === 'increase') {
                 prod.value++;
-            } else if (action === 'decrease' && prod.value > 0) {
+            } else if (action === 'decrease' ) {
                 prod.value--;
             }
             
